@@ -6,6 +6,7 @@
     "start": "node dist/server.js",
     "dev": "nodemon src/server.ts",
     "build": "node build.js",
+    "local-build": "tsc",
     "aws-build": "npm run build && cp package.json dist/ && cp -r node_modules dist/ && ([ -f package-lock.json ] && cp package-lock.json dist/ || [ -f yarn.lock ] && cp yarn.lock dist/ || true)",
     "test": "jest --coverage",
     "test:watch": "jest --watch"

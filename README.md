@@ -47,7 +47,7 @@ The app uses `npm`
 ### Local installation
 
 Run `npm install` to install all required packages.
-Run `npm run build` to build the app
+Run `npm run local-build` to build the app
 Run `npm start` to start the server.
 
 The app expects a local `.env` file. Each repo has its `.env.sample`, change the values as needed.
