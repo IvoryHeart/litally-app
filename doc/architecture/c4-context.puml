@@ -1,0 +1,20 @@
+' C4Context Diagram for LiTally Fintech App
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+title Context diagram for LiTally Fintech Application
+
+Person(customer, "Customer/Admin", "A user of the fintech application")
+System(fintechAppUI, "Fintech Application UI", "Provides UI to the user")
+System(fintechApp, "Fintech Application", "Allows users to manage their finances, perform transactions, and track balances")
+
+System_Ext(paymentGateway, "Payment Gateway", "External system for processing payments")
+System_Ext(emailService, "Email Service", "External system for sending emails")
+
+Rel(customer, fintechAppUI, "Uses")
+Rel(fintechAppUI, fintechApp, "Send and receive API requests")
+Rel(fintechApp, paymentGateway, "Processes payments through")
+Rel(fintechApp, emailService, "Sends notifications via")
+
+SHOW_LEGEND()
+@enduml

@@ -1,0 +1,35 @@
+{
+  "User": {
+    "_id": "ObjectId",
+    "email": "String",
+    "passwordHash": "String",
+    "firstName": "String",
+    "lastName": "String",
+    "createdAt": "Date",
+    "updatedAt": "Date"
+  },
+
+  "Account": {
+    "_id": "ObjectId",
+    "userId": "ObjectId",
+    "accountType": "String",
+    "accountName": "String",
+    "currency": "String",
+    "balance": "Number",
+    "isActive": "Boolean",
+    "createdAt": "Date",
+    "updatedAt": "Date"
+  },
+
+  "Transaction": {
+    "_id": "ObjectId",
+    "accountId": "ObjectId",
+    "type": "String",
+    "amount": "Number",
+    "currency": "String",
+    "description": "String",
+    "status": "String",
+    "createdAt": "Date",
+    "updatedAt": "Date"
+  }
+}

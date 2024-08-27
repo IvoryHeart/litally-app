@@ -1,0 +1,31 @@
+'C4 Container Diagram
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+title Container diagram for LiTally Fintech Application
+
+Person(customer, "Uses the App")
+Person(admin, "Administers the App")
+
+System_Boundary(aws, "Fintech Application") {
+    Container(webApp, "Web Application", "React", "Provides all fintech functionality to customers via their web browser")
+    Container(apiGateway, "API Gateway", "Amazon API Gateway", "Handles API requests and routes them to appropriate Lambda functions")
+    Container(backend, "Backend Service", "Node.js", "Handles backend API services")
+    ContainerDb(db, "Database", "MongoDB Atlas", "Stores all data")
+}
+
+System_Boundary(externalSystems, "External Systems"){
+    System_Ext(paymentGateway, "Payment Gateway","API", "Provides payments and other transaction services")
+    System_Ext(emailService, "Email Services","API", "Provides email services")
+}
+
+Rel(customer, webApp, "Uses", "HTTPS")
+Rel(admin, webApp, "Uses", "HTTPS")
+Rel(webApp, apiGateway, "Makes API calls to", "HTTPS")
+Rel(apiGateway, backend, "Routes auth requests to")
+Rel(backend, db, "Reads from and writes to DB")
+Rel(backend, paymentGateway, "Processes payments via", "HTTPS")
+Rel(backend, emailService, "Sends emails via", "SMTP")
+
+SHOW_LEGEND()
+@enduml

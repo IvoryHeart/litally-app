@@ -1,0 +1,46 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+title Component diagram for API Gateway and Lambda Functions
+
+Container_Boundary(apiGateway, "API Gateway") {
+    Component(authEndpoint, "Auth Endpoint", "API Gateway Resource", "Handles authentication requests")
+    Component(accountEndpoint, "Account Endpoint", "API Gateway Resource", "Handles account requests")
+    Component(transactionEndpoint, "Transaction Endpoint", "API Gateway Resource", "Handles transaction requests")
+    Component(balanceEndpoint, "Balance Endpoint", "API Gateway Resource", "Handles balance requests")
+}
+
+Container_Boundary(authLambda, "Auth Lambda") {
+    Component(loginHandler, "Login Handler", "Lambda Function", "Authenticates users")
+    Component(registerHandler, "Register Handler", "Lambda Function", "Registers new users")
+    Component(resetPasswordHandler, "Reset Password Handler", "Lambda Function", "Handles password reset requests")
+}
+
+Container_Boundary(accountLambda, "Account Lambda") {
+    Component(createAccountHandler, "Create Account Handler", "Lambda Function", "Creates new user accounts")
+    Component(listAccountsHandler, "List Accounts Handler", "Lambda Function", "Lists user accounts")
+    Component(updateAccountHandler, "Update Account Handler", "Lambda Function", "Updates account details")
+}
+
+Container_Boundary(transactionLambda, "Transaction Lambda") {
+    Component(createTransactionHandler, "Create Transaction Handler", "Lambda Function", "Creates new transactions")
+    Component(listTransactionsHandler, "List Transactions Handler", "Lambda Function", "Lists account transactions")
+}
+
+Container_Boundary(balanceLambda, "Balance Lambda") {
+    Component(getBalanceHandler, "Get Balance Handler", "Lambda Function", "Retrieves account balance")
+    Component(updateBalanceHandler, "Update Balance Handler", "Lambda Function", "Updates account balance after transactions")
+}
+
+Rel(authEndpoint, loginHandler, "Invokes")
+Rel(authEndpoint, registerHandler, "Invokes")
+Rel(authEndpoint, resetPasswordHandler, "Invokes")
+Rel(accountEndpoint, createAccountHandler, "Invokes")
+Rel(accountEndpoint, listAccountsHandler, "Invokes")
+Rel(accountEndpoint, updateAccountHandler, "Invokes")
+Rel(transactionEndpoint, createTransactionHandler, "Invokes")
+Rel(transactionEndpoint, listTransactionsHandler, "Invokes")
+Rel(balanceEndpoint, getBalanceHandler, "Invokes")
+Rel(balanceEndpoint, updateBalanceHandler, "Invokes")
+
+SHOW_LEGEND()
+@enduml

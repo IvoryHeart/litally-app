@@ -1,0 +1,38 @@
+'C4 Component Diagram for Tally Fintech Application
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+title Component diagram for API Gateway and API Endpoints
+
+Container_Boundary(apiGateway, "API Gateway") {
+    Component(authEndpoint, "Users Endpoint", "API Gateway Resource", "Handles authentication requests")
+    Component(transactionEndpoint, "Transaction Endpoint", "API Gateway Resource", "Handles transaction requests")
+    Component(accountEndpoint, "Accounts Endpoint", "API Gateway Resource", "Handles balance requests")
+}
+
+Container_Boundary(authLambda, "Users Service") {
+    Component(loginHandler, "Login Handler", "API Endpoint", "Authenticates users")
+    Component(registerHandler, "Register Handler", "API Endpoint", "Registers new users")
+    Component(resetPasswordHandler, "Reset Password Handler", "API Endpoint", "Handles password reset requests")
+}
+
+Container_Boundary(transactionLambda, "Transaction Service") {
+    Component(createTransactionHandler, "Create Transaction Handler", "API Endpoint", "Creates new transactions")
+    Component(listTransactionsHandler, "List Transactions Handler", "API Endpoint", "Lists user transactions")
+}
+
+Container_Boundary(accountLambda, "Account Service") {
+    Component(addAccountHandler, "Add Account Handler", "API Endpoint", "Adds a account to a user")
+    Component(getAccountHandler, "Get Account and Balance Handler", "API Endpoint", "Retrieves user's account with balance")
+    Component(updateBalanceHandler, "Update Balance Handler", "API Endpoint", "Updates user's account's balance after transactions")
+}
+
+Rel(authEndpoint, loginHandler, "Invokes")
+Rel(authEndpoint, registerHandler, "Invokes")
+Rel(authEndpoint, resetPasswordHandler, "Invokes")
+Rel(transactionEndpoint, createTransactionHandler, "Invokes")
+Rel(transactionEndpoint, listTransactionsHandler, "Invokes")
+Rel(accountEndpoint, addAccountHandler, "Invokes")
+Rel(accountEndpoint, getAccountHandler, "Invokes")
+Rel(accountEndpoint, updateBalanceHandler, "Invokes")
+Rel(createTransactionHandler, updateBalanceHandler, "Invokes")
+@enduml

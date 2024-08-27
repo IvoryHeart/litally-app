@@ -1,0 +1,15 @@
+/auth:
+  /login:
+    post: Log in a user
+  /register:
+    post: Register a new user
+  /reset-password:
+    post: Initiate password reset
+
+/transactions:
+  get: List user transactions
+  post: Create a new transaction
+
+/balance:
+  get: Get user balance
+  put: Update user balance

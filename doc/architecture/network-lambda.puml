@@ -1,0 +1,45 @@
+@startuml
+!define AWSPuml https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v18.0/dist
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+!include AWSPuml/AWSCommon.puml
+!include AWSPuml/ApplicationIntegration/APIGateway.puml
+!include AWSPuml/Compute/Lambda.puml
+!include AWSPuml/Database/DocumentDB.puml
+!include AWSPuml/ManagementGovernance/SystemsManagerParameterStore.puml
+!include AWSPuml/SecurityIdentityCompliance/SecretsManager.puml
+
+skinparam linetype ortho
+
+title AWS Lambda Deployment Architecture for Litally Fintech API
+
+rectangle "AWS Cloud" {
+    APIGateway(api, "API Gateway", "HTTP API")
+    Lambda(lambda, "Lambda Function", "nodejs18.x\nHandler: dist/lambda.handler")
+    SystemsManagerParameterStore(ssm, "SSM Parameter Store", "Configuration")
+    SecretsManager(secrets, "Secrets Manager", "Sensitive Data")
+    
+}
+
+rectangle "MongoDB Atlas" {
+    DocumentDB(mongodb, "MongoDB", "External Database")
+}
+
+api -down-> lambda : "Triggers\n(ANY /{proxy+})"
+lambda -down-> mongodb : "Read/Write Data"
+lambda -left-> ssm : "Fetch Parameters"
+lambda -right-> secrets : "Fetch Secrets"
+
+note right of lambda
+  Timeout: 30 seconds
+  Stage: ${opt:stage, 'dev'}
+  Region: ${opt:region, 'eu-west-2'}
+end note
+
+note right of api
+  Paths:
+  - /api-docs/
+  - /api-docs/{proxy+}
+  - /{proxy+}
+end note
+
+@enduml

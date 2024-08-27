@@ -1,0 +1,57 @@
+@startuml
+!define AWSPuml https://raw.githubusercontent.com/awslabs/aws-icons-for-plantuml/v18.0/dist
+!include AWSPuml/AWSCommon.puml
+!include AWSPuml/Groups/VPC.puml
+!include AWSPuml/NetworkingContentDelivery/ElasticLoadBalancing.puml
+!include AWSPuml/Containers/ElasticContainerService.puml
+!include AWSPuml/Containers/Fargate.puml
+!include AWSPuml/Compute/EC2.puml
+!include AWSPuml/Containers/ElasticContainerRegistry.puml
+!include AWSPuml/ManagementGovernance/CloudWatch.puml
+!include AWSPuml/SecurityIdentityCompliance/SecretsManager.puml
+!include AWSPuml/ManagementGovernance/SystemsManagerParameterStore.puml
+!include AWSPuml/ApplicationIntegration/APIGateway.puml
+!include AWSPuml/Database/DocumentDB.puml
+
+title AWS Architecture for Litally Backend
+
+skinparam linetype ortho
+
+rectangle "AWS Cloud" {
+    VPCGroup(vpc, "VPC") {
+        rectangle "AZ1" {
+            ElasticLoadBalancing(alb, "Application Load Balancer", "")
+            ElasticContainerService(ecs, "ECS Cluster", "")
+            Fargate(fargate, "Fargate Service", "")
+            EC2(ec2, "EC2 Instances", "")
+        }
+    }
+    
+    ElasticContainerRegistry(ecr, "ECR", "litally-backend")
+    CloudWatch(cloudwatch, "CloudWatch", "Logs")
+    SecretsManager(secrets, "Secrets Manager", "Environment Variables")
+    SystemsManagerParameterStore(ssm, "SSM Parameter Store", "Non-sensitive Config")
+    APIGateway(api, "API Gateway", "")
+}
+
+rectangle "MongoDB Atlas" {
+    DocumentDB(mongodb, "MongoDB", "External Database")
+}
+
+api -down-> alb : "1. Route Traffic"
+alb -down-> ecs : "2. Distribute Load"
+ecs -down-> fargate : "3. Manage Tasks"
+fargate -down-> ec2 : "4. Run on"
+fargate -left-> ecr : "5. Pull Image"
+fargate -right-> cloudwatch : "6. Log"
+fargate -up-> secrets : "7. Read Secrets"
+fargate -up-> ssm : "8. Read Parameters"
+ec2 -down-> mongodb : "9. Store/Retrieve Data"
+
+legend right
+    |= Arrow |= Meaning |
+    | <- -> | Data Flow |
+    | <-- --> | Dependency |
+endlegend
+
+@enduml

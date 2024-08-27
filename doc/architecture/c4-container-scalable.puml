@@ -1,0 +1,50 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+title Container diagram for LiTally Fintech Application
+
+Person(customer, "App User/Admin")
+
+System_Boundary(c1, "Fintech Application") {
+    Container(webApp, "Web Application", "React", "Provides all fintech functionality to customers via their web browser")
+    Container(apiGateway, "API Gateway", "Amazon API Gateway", "Handles API requests and routes them to appropriate Lambda functions")
+    Container(authLambda, "Auth Lambda", "Node.js", "Handles user authentication and authorization")
+    Container(accountLambda, "Account Lambda", "Node.js", "Manages user accounts")
+    Container(transactionLambda, "Transaction Lambda", "Node.js", "Manages user transactions")
+    queue "Transaction Queue" as transQueue
+    queue "Dead-letter Queue" as deadQueue
+    Container(transactionWorker, "Transaction Worker", "Node.js", "Writes transactions and updates balances")
+    Container(balanceLambda, "Balance Lambda", "Node.js", "Tracks and updates account balances")
+    System_Boundary(atlas, "MongoDB Atlas"){
+        ContainerDb(userDb, "User Database", "MongoDB Atlas", "Stores user information")
+        ContainerDb(accountDb, "Account Database", "MongoDB Atlas", "Stores account information")
+        ContainerDb(transactionDb, "Transaction Database", "MongoDB Atlas", "Stores transaction records")
+    }
+}
+
+System_Boundary(externalSystems, "External Systems"){
+    System_Ext(paymentGateway, "Payment Gateway","API", "Provides payments and other transaction services")
+    System_Ext(emailService, "Email Services","API", "Provides email services")
+}
+
+Rel(customer, webApp, "Uses", "HTTPS")
+Rel(webApp, apiGateway, "Makes API calls to", "HTTPS")
+Rel(apiGateway, authLambda, "Routes auth requests to")
+Rel(apiGateway, accountLambda, "Routes account requests to")
+Rel(apiGateway, transactionLambda, "Routes transaction requests to")
+Rel(apiGateway, balanceLambda, "Routes balance requests to")
+Rel(authLambda, userDb, "Reads from and writes to")
+Rel(accountLambda, accountDb, "Reads from and writes to")
+Rel(transactionLambda, transQueue, "Writes to")
+Rel(transQueue, transactionWorker, "Reads from " )
+Rel(transactionLambda, transactionDb, "Reads from")
+Rel(transactionWorker, transactionDb, "Writes to")
+Rel(transactionWorker, deadQueue, "Writes to")
+Rel(deadQueue, transactionLambda, "Reads from")
+Rel(transactionWorker, accountLambda, "Updates balances")
+Rel(balanceLambda, accountDb, "Reads from and updates")
+Rel(transactionLambda, paymentGateway, "Processes payments via", "HTTPS")
+Rel(authLambda, emailService, "Sends emails via", "SMTP")
+
+
+SHOW_LEGEND()
+@enduml
