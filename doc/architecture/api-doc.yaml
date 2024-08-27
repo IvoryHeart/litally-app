@@ -1,15 +1,413 @@
-/auth:
-  /login:
-    post: Log in a user
-  /register:
-    post: Register a new user
-  /reset-password:
-    post: Initiate password reset
-
-/transactions:
-  get: List user transactions
-  post: Create a new transaction
-
-/balance:
-  get: Get user balance
-  put: Update user balance
+openapi: 3.0.1
+info:
+  title: LiTally Fintech API
+  version: 1.0.0
+  description: API documentation for LiTally Fintech application
+servers:
+  - url: http://localhost:3000
+    description: Local server
+  - url: http://localhost:3000
+    description: Explicit Local Server
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+  - bearerAuth: []
+paths:
+  /api/accounts:
+    post:
+      summary: Create a new account
+      tags:
+        - Accounts
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - accountType
+                - accountName
+                - currency
+              properties:
+                accountType:
+                  type: string
+                accountName:
+                  type: string
+                currency:
+                  type: string
+      responses:
+        '201':
+          description: Account created successfully
+        '400':
+          description: Invalid input
+        '401':
+          description: Unauthorized
+    get:
+      summary: Get user's accounts
+      tags:
+        - Accounts
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User's accounts retrieved successfully
+        '401':
+          description: Unauthorized
+  /api/accounts/{accountId}:
+    get:
+      summary: Get account details
+      tags:
+        - Accounts
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: accountId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Account details retrieved successfully
+        '401':
+          description: Unauthorized
+        '404':
+          description: Account not found
+  /api/accounts/{accountId}/balance:
+    put:
+      summary: Update account balance
+      tags:
+        - Accounts
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: accountId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - amount
+              properties:
+                amount:
+                  type: number
+      responses:
+        '200':
+          description: Account balance updated successfully
+        '400':
+          description: Invalid input
+        '401':
+          description: Unauthorized
+        '404':
+          description: Account not found
+  /api/accounts/{accountId}/transactions:
+    get:
+      summary: Get account's transactions
+      tags:
+        - Accounts
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: accountId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Account's transactions retrieved successfully
+        '401':
+          description: Unauthorized
+  /api/accounts/{accountId}/deactivate:
+    put:
+      summary: Deactivate account
+      tags:
+        - Accounts
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: accountId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Account deactivated successfully
+        '401':
+          description: Unauthorized
+        '404':
+          description: Account not found
+  /api/transactions:
+    post:
+      summary: Create a new transaction
+      tags:
+        - Transactions
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - accountId
+                - type
+                - amount
+                - currency
+                - description
+              properties:
+                accountId:
+                  type: string
+                type:
+                  type: string
+                  enum:
+                    - CREDIT
+                    - DEBIT
+                amount:
+                  type: number
+                currency:
+                  type: string
+                description:
+                  type: string
+                subType:
+                  type: string
+      responses:
+        '201':
+          description: Transaction created successfully
+        '400':
+          description: Invalid input
+        '401':
+          description: Unauthorized
+  /api/transactions/{transactionId}:
+    get:
+      summary: Get transaction details
+      tags:
+        - Transactions
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: transactionId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Transaction details retrieved successfully
+        '401':
+          description: Unauthorized
+        '404':
+          description: Transaction not found
+  /api/transactions/account/{accountId}:
+    get:
+      summary: Get account's transactions
+      tags:
+        - Transactions
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: accountId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Account's transactions retrieved successfully
+        '401':
+          description: Unauthorized
+  /api/transactions/{transactionId}/status:
+    put:
+      summary: Update transaction status (Admin only)
+      tags:
+        - Transactions
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: transactionId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - status
+              properties:
+                status:
+                  type: string
+                  enum:
+                    - COMPLETED
+                    - FAILED
+      responses:
+        '200':
+          description: Transaction status updated successfully
+        '400':
+          description: Invalid input
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - Admin access required
+        '404':
+          description: Transaction not found
+  /api/users/register:
+    post:
+      summary: Register a new user
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+                - firstName
+                - lastName
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+      responses:
+        '201':
+          description: User registered successfully
+        '400':
+          description: Invalid input
+  /api/users/login:
+    post:
+      summary: Login user
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Login successful
+        '401':
+          description: Invalid credentials
+  /api/users/profile:
+    get:
+      summary: Get user profile
+      tags:
+        - Users
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: User profile retrieved successfully
+        '401':
+          description: Unauthorized
+    put:
+      summary: Update user profile
+      tags:
+        - Users
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+      responses:
+        '200':
+          description: Profile updated successfully
+        '400':
+          description: Invalid input
+        '401':
+          description: Unauthorized
+  /api/users:
+    get:
+      summary: Get all users (Admin only)
+      tags:
+        - Users
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of all users retrieved successfully
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - Admin access required
+  /api/users/{userId}/type:
+    put:
+      summary: Update user type (Admin only)
+      tags:
+        - Users
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - userType
+              properties:
+                userType:
+                  type: string
+                  enum:
+                    - CUSTOMER
+                    - ADMIN
+      responses:
+        '200':
+          description: User type updated successfully
+        '400':
+          description: Invalid input
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden - Admin access required
+        '404':
+          description: User not found
+tags: []
