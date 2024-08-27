@@ -1,0 +1,61 @@
+service: litally-fintech-api
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  stage: ${opt:stage, 'dev'}
+  region: ${opt:region, 'eu-west-2'}
+  environment:
+    MONGODB_URI: ${self:custom.mongodbUri}
+    JWT_SECRET: ${self:custom.jwtSecret}
+    NODE_ENV: ${self:provider.stage}
+    IS_OFFLINE: false
+#    API_GATEWAY_ID: !Ref HttpApi
+#    AWS_REGION: ${self:provider.region}
+    STAGE: ${self:provider.stage}
+  timeout: 30
+
+functions:
+  app:
+    handler: dist/lambda.handler
+    #handler: lambda.handler
+    events:
+      - http:
+          path: /api-docs/
+          method: ANY
+      - http:
+          path: /api-docs/{proxy+}
+          method: ANY
+      - http:
+          path: /{proxy+}
+          method: ANY
+
+plugins:
+  - serverless-offline
+
+custom:
+  serverless-offline:
+    httpPort: 3000
+    noPrependStageInUrl: true
+    environment:
+      IS_OFFLINE: true
+    lambda:
+      # Increase local Lambda timeout to match the provider timeout
+      timeout: ${self:provider.timeout}
+  mongodbUri: ${env:MONGODB_URI, ssm:/litally/${self:provider.stage}/MONGODB_URI}
+  jwtSecret: ${env:JWT_SECRET, ssm:/litally/${self:provider.stage}/JWT_SECRET}
+
+package:
+  patterns:
+    - '!node_modules/.bin/**'
+    - 'node_modules/**'
+    - '!src/**'
+    - 'dist/**'
+    - 'package.json'
+    - 'package-lock.json'
+    - '!.git/**'
+    - '!.vscode/**'
+    - '!test/**'
+    - '!**/__tests__/**'
+    - '!*.md'
+    - '!*.bak'
